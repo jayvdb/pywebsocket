@@ -43,6 +43,7 @@ http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-00
 # writing/reading.
 
 
+from __future__ import absolute_import
 import logging
 import re
 import struct

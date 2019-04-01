@@ -45,6 +45,7 @@ This code is far from robust, e.g., we cut corners in handshake.
 """
 
 
+from __future__ import absolute_import
 import base64
 import errno
 import logging
@@ -57,6 +58,7 @@ import time
 
 from mod_pywebsocket import common
 from mod_pywebsocket import util
+from six.moves import range
 
 
 DEFAULT_PORT = 80
@@ -98,7 +100,7 @@ _MUX_EXTENSION = 'mux_DO_NOT_USE'
 _PERMESSAGE_DEFLATE_EXTENSION = 'permessage-deflate'
 
 def _method_line(resource):
-    return 'GET %s HTTP/1.1\r\n' % resource
+    return b'GET %s HTTP/1.1\r\n' % resource.encode('utf8')
 
 
 def _sec_origin_header(origin):
@@ -398,7 +400,7 @@ class WebSocketHandshake(object):
         # Validate
         try:
             decoded_accept = base64.b64decode(accept)
-        except TypeError, e:
+        except TypeError as e:
             raise HandshakeException(
                 'Illegal value for header Sec-WebSocket-Accept: ' + accept)
 
@@ -665,15 +667,15 @@ class WebSocketHybi00Handshake(object):
         # 4.1 21. insert between one and twelve random characters from the
         # range U+0021 to U+002F and U+003A to U+007E into /key_n/ at random
         # positions.
-        available_chars = range(0x21, 0x2f + 1) + range(0x3a, 0x7e + 1)
+        available_chars = list(range(0x21, 0x2f + 1)) + list(range(0x3a, 0x7e + 1))
         n = random.randint(1, 12)
-        for _ in xrange(n):
+        for _ in range(n):
             ch = random.choice(available_chars)
             pos = random.randint(0, len(key))
             key = key[0:pos] + chr(ch) + key[pos:]
         # 4.1 22. insert /spaces_n/ U+0020 SPACE characters into /key_n/ at
         # random positions other than start or end of the string.
-        for _ in xrange(spaces):
+        for _ in range(spaces):
             pos = random.randint(1, len(key) - 1)
             key = key[0:pos] + ' ' + key[pos:]
         return number, key
@@ -681,7 +683,7 @@ class WebSocketHybi00Handshake(object):
     def _generate_key3(self):
         # 4.1 26. let /key3/ be a string consisting of eight random bytes (or
         # equivalently, a random 64 bit integer encoded in a big-endian order).
-        return ''.join([chr(random.randint(0, 255)) for _ in xrange(8)])
+        return ''.join([chr(random.randint(0, 255)) for _ in range(8)])
 
 
 class WebSocketHixie75Handshake(object):
@@ -998,7 +1000,7 @@ def connect_socket_with_retry(host, port, timeout, use_tls,
             if use_tls:
                 return _TLSSocket(s)
             return s
-        except socket.error, e:
+        except socket.error as e:
             if e.errno != errno.ECONNREFUSED:
                 raise
             else:
@@ -1063,7 +1065,7 @@ class Client(object):
     def assert_connection_closed(self):
         try:
             read_data = receive_bytes(self._socket, 1)
-        except Exception, e:
+        except Exception as e:
             if str(e).find(
                 'Connection closed before receiving requested length ') == 0:
                 return

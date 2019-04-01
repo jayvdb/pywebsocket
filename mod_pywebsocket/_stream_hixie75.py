@@ -37,6 +37,7 @@ Specification:
 """
 
 
+from __future__ import absolute_import
 from mod_pywebsocket import common
 from mod_pywebsocket._stream_base import BadOperationException
 from mod_pywebsocket._stream_base import ConnectionTerminatedException

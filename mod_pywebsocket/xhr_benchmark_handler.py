@@ -5,6 +5,7 @@
 # https://developers.google.com/open-source/licenses/bsd
 
 
+from __future__ import absolute_import
 from mod_pywebsocket import util
 
 
@@ -61,7 +62,7 @@ class XHRBenchmarkHandler(object):
         bytes_to_send = request_array[0]
         try:
             bytes_to_send = int(bytes_to_send)
-        except ValueError, e:
+        except ValueError as e:
             self._logger.debug('Malformed size parameter: %r', bytes_to_send)
             return
 

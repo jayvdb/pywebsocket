@@ -31,8 +31,11 @@
 """WebSocket utilities."""
 
 
+from __future__ import absolute_import
 import array
 import errno
+from six.moves import map
+from six.moves import range
 
 # Import hash classes from a module available and recommended for each Python
 # version and re-export those symbol. Use sha and md5 module in Python 2.4, and
@@ -47,7 +50,12 @@ except ImportError:
     md5_hash = md5.md5
     sha1_hash = sha.sha
 
-import StringIO
+import six
+
+if six.PY3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
 import logging
 import os
 import re
@@ -68,7 +76,7 @@ def get_stack_trace():
     TODO: Remove this when we only support Python 2.4 and above.
           Use traceback.format_exc instead.
     """
-    out = StringIO.StringIO()
+    out = StringIO()
     traceback.print_exc(file=out)
     return out.getvalue()
 
@@ -143,7 +151,9 @@ def wrap_popen3_for_win(cygwin_path):
 
 
 def hexify(s):
-    return ' '.join(map(lambda x: '%02x' % ord(x), s))
+    if hasattr(s, 'hex'):
+        return s.hex()
+    return ' '.join(['%02x' % ord(x) for x in s])
 
 
 def get_class_logger(o):
@@ -197,11 +207,11 @@ class RepeatedXorMasker(object):
 
         # Use temporary local variables to eliminate the cost to access
         # attributes
-        masking_key = map(ord, self._masking_key)
+        masking_key = list(map(ord, self._masking_key))
         masking_key_size = len(masking_key)
         masking_key_index = self._masking_key_index
 
-        for i in xrange(len(result)):
+        for i in range(len(result)):
             result[i] ^= masking_key[masking_key_index]
             masking_key_index = (masking_key_index + 1) % masking_key_size
 

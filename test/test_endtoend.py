@@ -37,6 +37,7 @@ the port on which the Apache server is running.
 """
 
 
+from __future__ import absolute_import
 import logging
 import os
 import signal
@@ -46,7 +47,7 @@ import sys
 import time
 import unittest
 
-import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
+from . import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
 
 from test import client_for_testing
 from test import mux_client_for_testing
@@ -304,9 +305,9 @@ class EndToEndHyBiTest(EndToEndTestBase):
             try:
                 client.connect()
                 self.fail('Could not catch HttpStatusException')
-            except client_for_testing.HttpStatusException, e:
+            except client_for_testing.HttpStatusException as e:
                 self.assertEqual(status, e.status)
-            except Exception, e:
+            except Exception as e:
                 self.fail('Catch unexpected exception')
             finally:
                 client.close_socket()

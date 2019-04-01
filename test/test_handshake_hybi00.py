@@ -33,14 +33,16 @@
 """Tests for handshake.hybi00 module."""
 
 
+from __future__ import absolute_import
 import unittest
 
-import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
+from . import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
 
 from mod_pywebsocket.handshake._base import HandshakeException
 from mod_pywebsocket.handshake.hybi00 import Handshaker
 from mod_pywebsocket.handshake.hybi00 import _validate_subprotocol
 from test import mock
+from six.moves import map
 
 
 _TEST_KEY1 = '4 @1  46546xW%0l 1 5'

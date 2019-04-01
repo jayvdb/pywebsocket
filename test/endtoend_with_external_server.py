@@ -39,6 +39,7 @@ and example path as handler_scan option and Apache's DocumentRoot.
 """
 
 
+from __future__ import absolute_import
 import optparse
 import sys
 import test.test_endtoend

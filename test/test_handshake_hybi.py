@@ -33,16 +33,17 @@
 """Tests for handshake module."""
 
 
+from __future__ import absolute_import
 import unittest
 
-import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
+from . import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
 from mod_pywebsocket import common
 from mod_pywebsocket.handshake._base import AbortedByUserException
 from mod_pywebsocket.handshake._base import HandshakeException
 from mod_pywebsocket.handshake._base import VersionException
 from mod_pywebsocket.handshake.hybi import Handshaker
 
-import mock
+from . import mock
 
 
 class RequestDefinition(object):
@@ -507,10 +508,10 @@ class HandshakerTest(unittest.TestCase):
             try:
                 handshaker.do_handshake()
                 self.fail('No exception thrown for \'%s\' case' % case_name)
-            except HandshakeException, e:
+            except HandshakeException as e:
                 self.assertTrue(expect_handshake_exception)
                 self.assertEqual(expected_status, e.status)
-            except VersionException, e:
+            except VersionException as e:
                 self.assertFalse(expect_handshake_exception)
 
 

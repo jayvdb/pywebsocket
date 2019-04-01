@@ -32,6 +32,7 @@
 """
 
 
+from __future__ import absolute_import
 from mod_pywebsocket import http_header_util
 
 
@@ -241,7 +242,7 @@ def _parse_extension(state):
 
         try:
             _parse_extension_param(state, extension)
-        except ExtensionParsingException, e:
+        except ExtensionParsingException as e:
             raise ExtensionParsingException(
                 'Failed to parse parameter for %r (%r)' %
                 (extension_token, e))

@@ -1,3 +1,4 @@
+import six
 # Copyright 2013, Google Inc.
 # All rights reserved.
 #
@@ -50,7 +51,7 @@ def web_socket_transfer_data(request):
         line = request.ws_stream.receive_message()
         if line is None:
             return
-        if isinstance(line, unicode):
+        if isinstance(line, six.text_type):
             request.ws_stream.send_message(line, binary=False)
             if line == _GOODBYE_MESSAGE:
                 return

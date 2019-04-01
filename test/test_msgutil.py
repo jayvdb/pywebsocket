@@ -33,14 +33,16 @@
 """Tests for msgutil module."""
 
 
+from __future__ import absolute_import
+from __future__ import print_function
 import array
-import Queue
+import six.moves.queue
 import random
 import struct
 import unittest
 import zlib
 
-import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
+from . import set_sys_path  # Update sys.path to locate mod_pywebsocket module.
 
 from mod_pywebsocket import common
 from mod_pywebsocket.extensions import DeflateFrameExtensionProcessor
@@ -52,6 +54,8 @@ from mod_pywebsocket.stream import StreamHixie75
 from mod_pywebsocket.stream import StreamOptions
 from mod_pywebsocket import util
 from test import mock
+from six.moves import map
+from six.moves import range
 
 
 # We use one fixed nonce for testing instead of cryptographically secure PRNG.
@@ -59,12 +63,12 @@ _MASKING_NONCE = 'ABCD'
 
 
 def _mask_hybi(frame):
-    frame_key = map(ord, _MASKING_NONCE)
+    frame_key = list(map(ord, _MASKING_NONCE))
     frame_key_len = len(frame_key)
     result = array.array('B')
     result.fromstring(frame)
     count = 0
-    for i in xrange(len(result)):
+    for i in range(len(result)):
         result[i] ^= frame_key[count]
         count = (count + 1) % frame_key_len
     return _MASKING_NONCE + result.tostring()
@@ -527,7 +531,7 @@ class DeflateFrameTest(unittest.TestCase):
         extension.add_parameter('no_context_takeover', None)
         request = _create_request_from_rawdata(
             '', deflate_frame_request=extension)
-        for i in xrange(3):
+        for i in range(3):
             msgutil.send_message(request, 'Hello')
 
         compressed_message = compress.compress('Hello')
@@ -681,7 +685,7 @@ class DeflateFrameTest(unittest.TestCase):
         extension = common.ExtensionParameter(common.DEFLATE_FRAME_EXTENSION)
         request = _create_request_from_rawdata(
             data, deflate_frame_request=extension)
-        for i in xrange(3):
+        for i in range(3):
             self.assertEqual('Hello', msgutil.receive_message(request))
 
     def test_receive_message_various_btype(self):
@@ -884,7 +888,7 @@ class PerMessageDeflateTest(unittest.TestCase):
         compressed_empty = compressed_empty[:-4]
         expected += '\x80%c' % len(compressed_empty)
         expected += compressed_empty
-        print '%r' % expected
+        print('%r' % expected)
         self.assertEqual(expected, request.connection.written_data())
 
     def test_send_message_fragmented_empty_last_frame(self):
@@ -945,7 +949,7 @@ class PerMessageDeflateTest(unittest.TestCase):
         extension.add_parameter('server_no_context_takeover', None)
         request = _create_request_from_rawdata(
                 '', permessage_deflate_request=extension)
-        for i in xrange(3):
+        for i in range(3):
             msgutil.send_message(request, 'Hello', end=False)
             msgutil.send_message(request, 'Hello', end=True)
 
@@ -1024,7 +1028,7 @@ class PerMessageDeflateTest(unittest.TestCase):
 
         random.seed(a=0)
         payload = ''.join(
-            [chr(random.randint(0, 255)) for i in xrange(1000)])
+            [chr(random.randint(0, 255)) for i in range(1000)])
 
         compress = zlib.compressobj(
             zlib.Z_DEFAULT_COMPRESSION, zlib.DEFLATED, -zlib.MAX_WBITS)
@@ -1064,7 +1068,7 @@ class PerMessageDeflateTest(unittest.TestCase):
 
             frame_count += 1
 
-        print "Chunk sizes: %r" % chunk_sizes
+        print("Chunk sizes: %r" % chunk_sizes)
         self.assertTrue(len(chunk_sizes) > 10)
 
         # Close frame
@@ -1122,7 +1126,7 @@ class PerMessageDeflateTest(unittest.TestCase):
 
         random.seed(a=0)
         payload = ''.join(
-            [chr(random.randint(0, 255)) for i in xrange(1000)])
+            [chr(random.randint(0, 255)) for i in range(1000)])
 
         compress = None
 
@@ -1167,9 +1171,9 @@ class PerMessageDeflateTest(unittest.TestCase):
                     compress = None
                     finish_used = True
 
-        print "Chunk sizes: %r" % chunk_sizes
+        print("Chunk sizes: %r" % chunk_sizes)
         self.assertTrue(len(chunk_sizes) > 10)
-        print "Methods: %r" % methods
+        print("Methods: %r" % methods)
         self.assertTrue(sync_used)
         self.assertTrue(finish_used)
 
@@ -1242,7 +1246,7 @@ class MessageReceiverTest(unittest.TestCase):
         self.assertEqual('Hello!', receiver.receive())
 
     def test_onmessage(self):
-        onmessage_queue = Queue.Queue()
+        onmessage_queue = six.moves.queue.Queue()
 
         def onmessage_handler(message):
             onmessage_queue.put(message)
@@ -1267,7 +1271,7 @@ class MessageReceiverHixie75Test(unittest.TestCase):
         self.assertEqual('Hello!', receiver.receive())
 
     def test_onmessage(self):
-        onmessage_queue = Queue.Queue()
+        onmessage_queue = six.moves.queue.Queue()
 
         def onmessage_handler(message):
             onmessage_queue.put(message)
@@ -1293,7 +1297,7 @@ class MessageSenderTest(unittest.TestCase):
         # Use a queue to check the bytes written by MessageSender.
         # request.connection.written_data() cannot be used here because
         # MessageSender runs in a separate thread.
-        send_queue = Queue.Queue()
+        send_queue = six.moves.queue.Queue()
 
         def write(bytes):
             send_queue.put(bytes)
@@ -1323,7 +1327,7 @@ class MessageSenderHixie75Test(unittest.TestCase):
         # Use a queue to check the bytes written by MessageSender.
         # request.connection.written_data() cannot be used here because
         # MessageSender runs in a separate thread.
-        send_queue = Queue.Queue()
+        send_queue = six.moves.queue.Queue()
 
         def write(bytes):
             send_queue.put(bytes)

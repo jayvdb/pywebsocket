@@ -33,6 +33,7 @@ processors.
 """
 
 
+from __future__ import absolute_import
 from mod_pywebsocket import common
 from mod_pywebsocket import http_header_util
 
@@ -111,7 +112,7 @@ def parse_host_header(request):
         return fields[0], get_default_port(request.is_https())
     try:
         return fields[0], int(fields[1])
-    except ValueError, e:
+    except ValueError as e:
         raise HandshakeException('Invalid port number format: %r' % e)
 
 

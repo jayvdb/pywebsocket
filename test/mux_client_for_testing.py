@@ -40,7 +40,8 @@ NOTE: This code is far from robust like client_for_testing.py.
 
 
 
-import Queue
+from __future__ import absolute_import
+import six.moves.queue
 import base64
 import collections
 import email
@@ -348,7 +349,7 @@ class _InnerFrame(object):
 
 class _LogicalChannelData(object):
     def __init__(self):
-        self.queue = Queue.Queue()
+        self.queue = six.moves.queue.Queue()
         self.send_quota = 0
         self.receive_quota = 0
 
@@ -519,7 +520,7 @@ class MuxClient(object):
 
         try:
             send_quota = self._channel_slots.popleft()
-        except IndexError, e:
+        except IndexError as e:
             raise Exception('No channel slots: %r' % e)
 
         # Create AddChannel request
@@ -632,7 +633,7 @@ class MuxClient(object):
         try:
             inner_frame = self._logical_channels[channel_id].queue.get(
                 timeout=self._timeout)
-        except Queue.Empty, e:
+        except six.moves.queue.Empty as e:
             raise Exception('Cannot receive message from channel id %d' %
                             channel_id)
 
@@ -666,7 +667,7 @@ class MuxClient(object):
         try:
             inner_frame = self._logical_channels[channel_id].queue.get(
                 timeout=self._timeout)
-        except Queue.Empty, e:
+        except six.moves.queue.Empty as e:
             raise Exception('Cannot receive message from channel id %d' %
                             channel_id)
         if inner_frame.opcode != client_for_testing.OPCODE_CLOSE:
